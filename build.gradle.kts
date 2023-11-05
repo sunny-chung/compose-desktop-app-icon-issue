@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.util.Properties
 
 plugins {
     kotlin("jvm")
@@ -21,6 +22,24 @@ dependencies {
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
 }
+
+// Uncomment this would "disable" custom app icon in Windows
+//tasks.create("createBuildProperties") {
+//    dependsOn("jvmProcessResources")
+//    doFirst {
+//        val file = File("$buildDir/resources/build.properties")
+//        file.parentFile.mkdirs()
+//        file.writer().use { writer ->
+//            val p = Properties()
+//            p["version"] = project.version.toString()
+//            p.store(writer, null)
+//        }
+//    }
+//}
+//
+//tasks.getByName("jvmMainClasses") {
+//    dependsOn("createBuildProperties")
+//}
 
 compose.desktop {
     application {
