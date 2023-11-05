@@ -1,7 +1,8 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.util.Properties
 
 plugins {
-    kotlin("jvm")
+    kotlin("multiplatform")
     id("org.jetbrains.compose")
 }
 
@@ -14,12 +15,39 @@ repositories {
     google()
 }
 
-dependencies {
-    // Note, if you develop a library, you should use compose.desktop.common.
-    // compose.desktop.currentOs should be used in launcher-sourceSet
-    // (in a separate module for demo project and in testMain).
-    // With compose.desktop.common you will also lose @Preview functionality
-    implementation(compose.desktop.currentOs)
+kotlin {
+    jvm {
+        jvmToolchain(11)
+        withJava()
+    }
+    sourceSets {
+        val jvmMain by getting {
+            dependencies {
+                // Note, if you develop a library, you should use compose.desktop.common.
+                // compose.desktop.currentOs should be used in launcher-sourceSet
+                // (in a separate module for demo project and in testMain).
+                // With compose.desktop.common you will also lose @Preview functionality
+                implementation(compose.desktop.currentOs)
+            }
+        }
+    }
+}
+
+tasks.create("createBuildProperties") {
+    dependsOn("jvmProcessResources")
+    doFirst {
+        val file = File("$buildDir/resources/build.properties")
+        file.parentFile.mkdirs()
+        file.writer().use { writer ->
+            val p = Properties()
+            p["version"] = project.version.toString()
+            p.store(writer, null)
+        }
+    }
+}
+
+tasks.getByName("jvmMainClasses") {
+    dependsOn("createBuildProperties")
 }
 
 compose.desktop {
